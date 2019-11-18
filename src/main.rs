@@ -23,6 +23,12 @@ fn main() -> std::io::Result<()> {
 			ipu.ki_mut().wVk = 0;
 			ipu.ki_mut().dwExtraInfo = 0;
 
+			//bug回避用
+			{
+				send_key_up(0x1D);
+				send_key_up(0x2A);
+				send_key_up(map_key_code("58"));
+			}
 			loop {
 				//フラグを入力にリセット
 				ipu.ki_mut().dwFlags = KEYEVENTF_SCANCODE;
@@ -32,8 +38,10 @@ fn main() -> std::io::Result<()> {
 				let comb: Vec<&str> = code.split(',').collect();
 
 				if comb.len() == 2 {
+					let code = map_key_code(comb[1]);
 					match comb[0] {
-						"c" if ctrl_prefix.contains(&comb[1]) => {
+						//Ctrl
+						"ct" => {
 							match comb[1] {
 								"14" => send_key(0xE04F), // ctrl + e => end
 								"35" => send_key(0xE048), // ctrl + p => up arrow
@@ -45,107 +53,42 @@ fn main() -> std::io::Result<()> {
 								_ => {}
 							}
 						}
+						// Cmd
 						"c" => {
-							//Send the ctrl press
-							// ipu.ki_mut().wScan = 0x1D; // Left-Ctrl
-							// ip.u = ipu;
-							// SendInput(1, &mut ip, mem::size_of::<INPUT>() as i32);
 							send_key_press(0x1D); // send the ctrl press
-
-							//send key
-							// ipu.ki_mut().wScan = map_key_code(comb[1]);
-							// ip.u = ipu;
-							// SendInput(1, &mut ip, mem::size_of::<INPUT>() as i32);
-							send_key(map_key_code(comb[1])); //send key
-
-							//Prepare a keyup key
-							// ipu.ki_mut().dwFlags = KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP;
-							// ip.u = ipu;
-							// SendInput(1, &mut ip, mem::size_of::<INPUT>() as i32);
-							// send_key_up(map_key_code(comb[1]));
-							//Prepare a keyup ctrl
-							// ipu.ki_mut().wScan = 0x1D; // Left-Ctrl
-							// ipu.ki_mut().dwFlags = KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP;
-							// ip.u = ipu;
-							// SendInput(1, &mut ip, mem::size_of::<INPUT>() as i32);
-							send_key_up(0x1D);
+							send_key(code); //send key press and release\
+							 // send_key_up(0x1D); //send the ctrl rerlease
 						}
+						// Shift
 						"s" => {
-							//Send the Left-Shift press
-							ipu.ki_mut().wScan = 0x2A; // Left-Shift
-							ip.u = ipu;
-							SendInput(1, &mut ip, mem::size_of::<INPUT>() as i32);
-							//send key
-							ipu.ki_mut().wScan = map_key_code(comb[1]);
-							ip.u = ipu;
-							SendInput(1, &mut ip, mem::size_of::<INPUT>() as i32);
-							//Prepare a keyup key
-							ipu.ki_mut().dwFlags = KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP;
-							ip.u = ipu;
-							SendInput(1, &mut ip, mem::size_of::<INPUT>() as i32);
-							//Prepare a keyup shift
-							ipu.ki_mut().wScan = 0x2A; // Left-Shift
-							ipu.ki_mut().dwFlags = KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP;
-							ip.u = ipu;
-							SendInput(1, &mut ip, mem::size_of::<INPUT>() as i32);
+							send_key_press(0x2A);
+							send_key(code);
+							// send_key_up(0x2A);
 						}
 						// ctrl + shift + hoge
 						"d" => {
-							//Send the Left-Ctrl press
-							ipu.ki_mut().wScan = 0x1D; // Left-Ctrl
-							ip.u = ipu;
-							SendInput(1, &mut ip, mem::size_of::<INPUT>() as i32);
-							//Send the Left-Shift press
-							ipu.ki_mut().wScan = 0x2A; // Left-Shift
-							ip.u = ipu;
-							SendInput(1, &mut ip, mem::size_of::<INPUT>() as i32);
-							//send key
-							ipu.ki_mut().wScan = map_key_code(comb[1]);
-							ip.u = ipu;
-							SendInput(1, &mut ip, mem::size_of::<INPUT>() as i32);
-							//Prepare a keyup key
-							ipu.ki_mut().dwFlags = KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP;
-							ip.u = ipu;
-							SendInput(1, &mut ip, mem::size_of::<INPUT>() as i32);
-							//Prepare a keyup shift
-							ipu.ki_mut().wScan = 0x2A; // Left-Shift
-							ipu.ki_mut().dwFlags = KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP;
-							ip.u = ipu;
-							SendInput(1, &mut ip, mem::size_of::<INPUT>() as i32);
-							//Prepare a keyup Ctrl
-							ipu.ki_mut().wScan = 0x1D; // Left-Ctrl
-							ipu.ki_mut().dwFlags = KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP;
-							ip.u = ipu;
-							SendInput(1, &mut ip, mem::size_of::<INPUT>() as i32);
+							send_key_press(0x1D); //Send the Left-Ctrl press
+							send_key_press(0x2A); // Send the Left-Shift press
+							send_key(code);
+							// send_key_up(0x2A);
+							// send_key_up(0x1D);
 						}
 
 						// alt
 						"a" => {
-							//Send the Left-alt press
-							ipu.ki_mut().wScan = 0xE038; // Left-alt
-							ip.u = ipu;
-							SendInput(1, &mut ip, mem::size_of::<INPUT>() as i32);
-							alt = true;
-
-							//send key
-							ipu.ki_mut().wScan = map_key_code(comb[1]);
-							ip.u = ipu;
-							SendInput(1, &mut ip, mem::size_of::<INPUT>() as i32);
-							//Prepare a keyup key
-							ipu.ki_mut().dwFlags = KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP;
-							ip.u = ipu;
-							SendInput(1, &mut ip, mem::size_of::<INPUT>() as i32);
+							send_key_press(0xE038);
+							send_key(code);
 						}
 						_ => {}
 					}
 				} else {
+					let code = map_key_code(comb[0]);
 					match comb[0] {
-						// "55" => send_key_up(map_key_code(comb[0])), // up cmd key,
-						// "56" => send_key_up(map_key_code(comb[0])), // up shift key,
-						// up alt key,
-						"58" => send_key_up(map_key_code(comb[0])),
-						// "59" => send_key_up(map_key_code(comb[0])), // up ctrl key,
-						_ => send_key(map_key_code(comb[0])),
+						"55" => send_key_up(code), // up cmd key,
+						"56" => send_key_up(code), // up shift key,
+						"58" => send_key_up(code), // up alt key
+						"59" => send_key_up(code), // up ctrl key,
+						_ => send_key(code),
 					}
 				}
 				println!("{:?}", std::str::from_utf8(&buf[..amt]));
