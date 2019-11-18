@@ -71,7 +71,7 @@ pub fn map_key_code(c: &str) -> u16 {
 		"55" | "59" => 0x1D, // ctrl or cmd
 		"56" => 0x2A,
 		// Right group
-		"123" => 0xE047, // left arrow
+		"123" => 0xE04B, // left arrow
 		"124" => 0xE04D, // right arrow
 		"125" => 0xE050, // down arrow
 		"126" => 0xE048, // up arrow
