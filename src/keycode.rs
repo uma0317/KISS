@@ -63,10 +63,11 @@ pub fn map_key_code(c: &str) -> u16 {
 		"111" => 0x58, // F12
 
 		// Misc keys
-		"53" => 0x01, // ESC
-		"36" => 0x1c, // return
-		"49" => 0x39, // space
-		"51" => 0x0e, // back space
+		"53" => 0x01,   // ESC
+		"36" => 0x1c,   // return
+		"49" => 0x39,   // space
+		"51" => 0x0e,   // back space
+		"58" => 0xE038, // alt
 
 		// Right group
 		"123" => 0xE047, // left arrow
